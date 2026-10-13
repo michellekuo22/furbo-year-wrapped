@@ -40,6 +40,8 @@ body{
 :root{color-scheme:dark}
 img{max-width:none}
 .mobile body{background:linear-gradient(180deg,#5b6fe8,#7f93f0 60%,#b9a7f1)}
+.mobile .phone{background:transparent}
+.mobile body > .gbg{position:fixed;inset:0;z-index:-1}
 .status{display:none!important}
 .showstatus .status{display:flex!important}
 .sheet{position:absolute;inset:0;z-index:70;background:rgba(40,12,60,.72);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);display:grid;place-items:center;padding:24px}
@@ -129,7 +131,7 @@ img{max-width:none}
 
 /* pill + headline */
 .pill{
-  align-self:flex-start;margin:112px 0 0 33px;padding:0 13px;height:32px;line-height:30px;border-radius:16px;
+  align-self:flex-start;margin:clamp(60px,calc(var(--h)*.133),112px) 0 0 33px;padding:0 13px;height:32px;line-height:30px;border-radius:16px;
   font:600 18px var(--head);letter-spacing:-.1px;color:#fff;
   background:linear-gradient(180deg,rgba(255,255,255,.22),rgba(80,70,190,.35));
   border:1px solid rgba(255,255,255,.32);box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 6px 18px rgba(50,50,160,.25);
@@ -547,9 +549,20 @@ function fit(){
   if (mobile){ s = Math.min(w/390, h/760); H = h/s; }
   else { s = Math.min((h-40)/844, (w-40)/390, 1.25); H = 844; }
   root.style.setProperty('--s', s); root.style.setProperty('--h', H+'px');
+  const gb = $('#gbg');
+  if (mobile){ if (gb.parentNode !== document.body) document.body.insertBefore(gb, document.body.firstChild) }
+  else if (gb.parentNode !== phone) phone.insertBefore(gb, phone.firstChild);
   const c = $('#fx'); c.width = 390*2; c.height = H*2;
+  fitFurbo();
 }
-addEventListener('resize', fit); window.visualViewport && visualViewport.addEventListener('resize', fit); addEventListener('orientationchange', ()=>setTimeout(fit,200)); fit();
+function fitFurbo(){
+  const f = $('#furbo'), lab = $('.s5 .top9'); if (!f || !lab) return;
+  const H = parseFloat(getComputedStyle(root).getPropertyValue('--h')) || 844;
+  const avail = H - (lab.offsetTop + lab.offsetHeight) - 16;
+  const w = Math.max(230, Math.min(420, (avail / .908) * 585 / 462));
+  f.style.width = w + 'px'; f.style.left = (-12 * w / 420) + 'px';
+}
+addEventListener('resize', fit); window.visualViewport && visualViewport.addEventListener('resize', fit); addEventListener('orientationchange', ()=>setTimeout(fit,200)); fit(); if (document.fonts) document.fonts.ready.then(fit); addEventListener('load', fit); (document.fonts && document.fonts.ready.then(fit)); addEventListener('load', fit);
 
 /* ---------- decorate ---------- */
 // sparkles
